@@ -13,15 +13,19 @@ import { useGLTF, Float } from '@react-three/drei'
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useStore } from "../../store";
 import { useFrame } from '@react-three/fiber';
+import {  PositionalAudio } from "@react-three/drei";
 
 export function ItemBox(props) {
   const { nodes, materials } = useGLTF('./models/misc/gift-transformed.glb');
   const { actions } = useStore();
   const ref = useRef();
+  const giftSound = useRef();
   const [scale, setScale] = React.useState(0.6);
   const frames = useRef(0);
   const body = useRef();
   useFrame((state, delta) => {
+    giftSound.current.setPlaybackRate(1.5);
+    giftSound.current.setVolume(0.5);
     const time = state.clock.getElapsedTime();
     ref.current.position.y = Math.sin(time) * 0.1 + 2.5;
     ref.current.rotation.x = Math.sin(time) * 0.1;
@@ -46,7 +50,7 @@ export function ItemBox(props) {
       ref={body}
       onIntersectionEnter={({other}) => {
         if(other.rigidBodyObject.name === "player"){
-
+        giftSound.current.play();
         actions.setItem();
         setScale(0);
         frames.current = 400;
@@ -62,6 +66,12 @@ export function ItemBox(props) {
         <mesh castShadow receiveShadow geometry={nodes.Cube000.geometry} material={materials.Material} position={[0.077, 0.5, -0.019]} rotation={[-Math.PI / 2, 0, 0]} />
         <mesh castShadow receiveShadow geometry={nodes.Cube000_1.geometry} material={materials['Material.001']} position={[0.077, 0.5, -0.019]} rotation={[-Math.PI / 2, 0, 0]} />
       </group>
+      <PositionalAudio
+          ref={giftSound}
+          url="./sounds/gift.mp3"
+          loop={false}
+          distance={1000}
+        />
       </>
   )
 
